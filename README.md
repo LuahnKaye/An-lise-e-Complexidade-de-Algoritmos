@@ -1,121 +1,155 @@
-# Relatório: Análise de Complexidade e Desempenho no Cálculo da Sequência de Fibonacci
-
-## 1. Objetivo do Trabalho
-Implementar, testar e analisar comparativamente três abordagens algorítmicas para o cálculo do $n$-ésimo número da Sequência de Fibonacci ($F_n$), avaliando o tempo de execução, a complexidade assintótica (tempo e espaço), o comportamento gráfico de crescimento e os limites computacionais de cada método.
+# Relatório: Análise de Complexidade de Algoritmos
+## Sequência de Fibonacci e Números de Pell
 
 ---
 
-## 2. Descrição das Abordagens
+# PARTE 1: SEQUÊNCIA DE FIBONACCI
+
+## 1. Descrição das Abordagens
 
 ### 1. Pela Definição Matemática (Recursão Pura)
 - **Arquivo:** `1_fibonacci_definicao.py`
-- **Funcionamento:** Aplica a definição matemática direta: $F(0)=0$, $F(1)=1$ e $F(n) = F(n-1) + F(n-2)$.
-- **Complexidade de Tempo:** $\mathcal{O}(2^n)$ ou precisamente $\Theta(\phi^n)$, onde $\phi \approx 1,618$ (Proporção Áurea).
-- **Complexidade de Espaço:** $\mathcal{O}(n)$ na pilha de chamadas de recursão.
-- **Característica:** Constrói uma árvore binária de chamadas com recálculos redundantes massivos (ex.: $F(n-2)$ é recalculado repetidamente por múltiplos ramos).
+- **Funcionamento:** $F(0)=0$, $F(1)=1$ e $F(n) = F(n-1) + F(n-2)$.
+- **Complexidade de Tempo:** $\mathcal{O}(2^n)$ ou $\Theta(\phi^n)$, onde $\phi \approx 1,618$ (Proporção Áurea).
+- **Complexidade de Espaço:** $\mathcal{O}(n)$ na pilha de chamadas.
 
-### 2. Armazenando Resultados Intermediários (Programação Dinâmica / Iterativa)
+### 2. Armazenando Resultados Intermediários (Programação Dinâmica / Iterativo)
 - **Arquivo:** `2_fibonacci_intermediarios.py`
-- **Funcionamento:** Elimina recálculos armazenando os termos anteriores. A versão iterativa calcula de baixo para cima (*bottom-up*), mantendo apenas as duas variáveis anteriores ($a$ e $b$).
-- **Complexidade de Tempo:** $\mathcal{O}(n)$ (cada termo de $2$ até $n$ é computado exatamente uma vez).
-- **Complexidade de Espaço:** $\mathcal{O}(1)$ utilizando duas variáveis (ou $\mathcal{O}(n)$ se armazenado em vetor).
-- **Característica:** Execução linear eficiente, sem repetição de trabalho.
+- **Funcionamento:** Calcula de baixo para cima (*bottom-up*), armazenando os dois termos anteriores.
+- **Complexidade de Tempo:** $\mathcal{O}(n)$.
+- **Complexidade de Espaço:** $\mathcal{O}(1)$ (duas variáveis) ou $\mathcal{O}(n)$ (vetor).
 
 ### 3. Utilizando Matrizes (Exponenciação Rápida)
 - **Arquivo:** `3_fibonacci_matrizes.py`
-- **Funcionamento:** Utiliza a relação matricial clássica:
+- **Funcionamento:** Exponenciação binária da matriz:
 $$\begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^n$$
-  Calcula a potência da matriz $2 \times 2$ por **potenciação binária** (divisão e conquista), dividindo o expoente por 2 a cada etapa.
 - **Complexidade de Tempo:** $\mathcal{O}(\log n)$ multiplicações de matrizes.
-- **Complexidade de Espaço:** $\mathcal{O}(1)$ iterativo.
-- **Característica:** Realiza um número mínimo de operações mesmo para números na casa dos milhões (ex.: para $n=1.000.000$, são necessárias apenas ~20 multiplicações de matrizes).
+- **Complexidade de Espaço:** $\mathcal{O}(1)$.
 
 ---
 
-## 3. Resultados Experimentais: $F(5)$, $F(15)$ e $F(30)$
-
-Os testes foram executados em ambiente Python 3.12 com cronometragem em alta precisão (`time.perf_counter`):
+## 2. Resultados Experimentais: $F(5)$, $F(15)$ e $F(30)$
 
 | $n$ | $F(n)$ | 1. Pela Definição $\mathcal{O}(2^n)$ | 2. Intermediários $\mathcal{O}(n)$ | 3. Matrizes $\mathcal{O}(\log n)$ |
 | :---: | :---: | :---: | :---: | :---: |
-| **5** | **5** | **0.0025 ms** (15 chamadas) | **0.0014 ms** | **0.0059 ms** |
-| **15** | **610** | **0.0637 ms** (1.973 chamadas) | **0.0011 ms** | **0.0040 ms** |
-| **30** | **832.040** | **84.5288 ms** (2.692.537 chamadas) | **0.0034 ms** | **0.0076 ms** |
+| **5** | **5** | **0.0029 ms** | **0.0017 ms** | **0.0065 ms** |
+| **15** | **610** | **0.0652 ms** | **0.0011 ms** | **0.0040 ms** |
+| **30** | **832.040** | **86.2645 ms** (~2,69M chamadas) | **0.0032 ms** | **0.0087 ms** |
 
 ---
 
-## 4. O Maior Número Calculável em Cada Versão
-
-### Versão 1: Pela Definição
-- **Maior valor prático:** **$n \approx 38$ a $42$** (para tempo $\le 1$ minuto).
-- **Limite:** **Tempo de CPU exponencial**. O número de operações cresce a uma taxa de $1,618^n$.
-  - $F(30)$: ~2,69 milhões de operações (84 ms).
-  - $F(35)$: ~29,8 milhões de operações (~1,7 s).
-  - $F(40)$: ~331 milhões de operações (~35 s).
-  - $F(50)$: ~40 bilhões de operações (levaria horas).
-  - $F(100)$: $> 10^{20}$ operações (tempo maior que a idade do universo).
-
-### Versão 2: Resultados Intermediários
-- **Maior valor prático:** **$n \approx 500.000$ a $1.000.000$**.
-- **Limite:** Custo de adição de inteiros de precisão arbitrária (*bignum*) e memória RAM.
-  - $F(100.000)$ possui $20.899$ dígitos decimais (tempo: ~0,06 s).
-  - $F(500.000)$ possui $104.494$ dígitos decimais (tempo: ~1,32 s).
-  - $F(1.000.000)$ possui $208.988$ dígitos decimais (tempo: ~3,5 s).
-
-### Versão 3: Utilizando Matrizes
-- **Maior valor prático:** **$n \approx 10.000.000$ a $50.000.000$ (10 a 50 milhões)**.
-- **Limite:** A quantidade de multiplicações é irrelevante ($\approx 24$ passos para $10^7$). O limite é a multiplicação de números com milhões de dígitos (algoritmo de Karatsuba) e consumo de memória RAM.
-  - $F(1.000.000)$: ~0,27 s (208.988 dígitos).
-  - $F(10.000.000)$: ~14 s (**2.089.877 dígitos decimais**).
+## 3. Maior Número Calculável (Fibonacci)
+- **Pela Definição:** $n \approx 38$ a $42$ (limite: tempo de CPU exponencial).
+- **Resultados Intermediários:** $n \approx 500.000$ a $1.000.000$ (limite: memória RAM e custo da soma *bignum*).
+- **Matrizes:** $n \approx 10.000.000$ a $50.000.000$ (limite: multiplicação de inteiros de milhões de dígitos).
 
 ---
 
-## 5. Análise dos Gráficos de Performance
+# PARTE 2: NÚMEROS DE PELL
 
-Os gráficos gerados pelo script `5_gerar_graficos.py` registram e comprovam empiricamente a teoria de complexidade:
+## 1. Definição Matemática dos Números de Pell
+A sequência de Pell é uma relação de recorrência linear de segunda ordem definida por:
+$$P_0 = 0$$
+$$P_1 = 1$$
+$$P_n = 2 \cdot P_{n-1} + P_{n-2}, \quad \text{para } n \ge 2$$
 
-1. **Gráfico Linear ($n=1$ até $34$):**
-   - A curva da **Definição $\mathcal{O}(2^n)$** sofre uma explosão vertical a partir de $n \approx 28$, inviabilizando sua execução rapidamente.
-   - As abordagens de **Resultados Intermediários** e **Matrizes** permanecem completamente estáveis próximas a 0 ms nessa faixa.
+Os primeiros termos da sequência são:
+`0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378, 5741, 13860, 33461, ...`
 
-2. **Gráfico em Escala Logarítmica:**
-   - Na escala logarítmica, a curva exponencial se transforma em uma reta ascendente com inclinação positiva acentuada, ilustrando que a cada acréscimo de $n$, o tempo é multiplicado por uma constante.
-   - As versões linear e logarítmica formam linhas muito inferiores, demonstrando ordens de grandeza de separação de desempenho.
-
-3. **Gráfico para Grandes Valores ($n=1.000$ até $400.000$):**
-   - Evidencia a diferença entre $\mathcal{O}(n)$ e $\mathcal{O}(\log n)$.
-   - Enquanto a abordagem iterativa $\mathcal{O}(n)$ apresenta crescimento contínuo de tempo com centenas de milhares de iterações, a abordagem matricial $\mathcal{O}(\log n)$ mantém tempos inferiores a $0,1$ segundo, confirmando a alta eficiência da exponenciação binária.
+A equação característica associada é $r^2 - 2r - 1 = 0$, cujas raízes são $r = 1 \pm \sqrt{2}$. A raiz dominante $1 + \sqrt{2} \approx 2,41421356$ é conhecida como a **Proporção Prateada** (*Silver Ratio* $\delta_S$). A fórmula fechada de Binet para Pell é:
+$$P_n = \frac{(1 + \sqrt{2})^n - (1 - \sqrt{2})^n}{2\sqrt{2}}$$
 
 ---
 
-## 6. Referências Bibliográficas
+## 2. Aplicações Práticas dos Números de Pell
 
-1. **CORMEN, Thomas H. et al.** *Introduction to Algorithms* (Algoritmos: Teoria e Prática). 3. ed. MIT Press / Campus, 2009.
-   - *Capítulo 15:* Dynamic Programming (Programação Dinâmica).
-   - *Capítulo 31:* Number-Theoretic Algorithms (Algoritmos de Teoria dos Números e Exponenciação Rápida de Matrizes).
-2. **DASGUPTA, Sanjoy; PAPADIMITRIOU, Christos; VAZIRANI, Umesh.** *Algorithms*. McGraw-Hill, 2006.
-   - *Capítulo 0:* Prologue - Fibonacci numbers (Análise comparativa detalhada da recursão ingênua, programação dinâmica e exponenciação matricial).
-3. **KNUTH, Donald E.** *The Art of Computer Programming, Volume 1: Fundamental Algorithms*. 3. ed. Addison-Wesley, 1997.
-   - Seção 1.2.8: Propriedades matemáticas da sequência de Fibonacci e representação matricial.
-4. **SEDGEWICK, Robert; WAYNE, Kevin.** *Algorithms*. 4. ed. Addison-Wesley, 2011.
+1. **Aproximação Rápida da Raiz Quadrada de 2 ($\sqrt{2}$):**
+   A razão entre termos consecutivos de Pell associados aos números de Pell-Lucas gera as melhores aproximações racionais (frações contínuas) de $\sqrt{2}$:
+   $$\frac{P_n + P_{n-1}}{P_n} \approx \sqrt{2}$$
+   - Para $n=2$: $\frac{2 + 1}{2} = \frac{3}{2} = 1,5$
+   - Para $n=3$: $\frac{5 + 2}{5} = \frac{7}{5} = 1,4$
+   - Para $n=4$: $\frac{12 + 5}{12} = \frac{17}{12} \approx 1,4166$
+   - Para $n=5$: $\frac{29 + 12}{29} = \frac{41}{29} \approx 1,41379$
+   - Para $n=8$: $\frac{408 + 169}{408} = \frac{577}{408} \approx 1,4142156$ (precisão de 5 casas decimais).
+
+2. **Equações Diofantinas (Equação de Pell):**
+   Equações da forma $x^2 - 2y^2 = \pm 1$ possuem soluções inteiras dadas exatamente pelos números de Pell: $x = P_n + P_{n-1}$ e $y = P_n$.
+
+3. **Criptografia de Chave Pública e Roteamento de Redes:**
+   As propriedades aritméticas da Equação de Pell e dos corpos quadráticos $\mathbb{Z}[\sqrt{d}]$ são empregadas em esquemas criptográficos baseados em curvas algébricas e no particionamento e balanceamento ótimo de nós em topologias de redes interconectadas.
 
 ---
 
-## 7. Como Executar os Scripts
+## 3. Implementação das Duas Abordagens
+
+### Abordagem 1: Iterativa com Programação Dinâmica ($\mathcal{O}(n)$)
+- **Arquivo:** `pell_iterativo.py`
+- **Funcionamento:** Inicia com $a=0, b=1$ e atualiza iterativamente $a, b = b, 2b + a$.
+- **Complexidade de Tempo:** $\mathcal{O}(n)$.
+- **Complexidade de Espaço:** $\mathcal{O}(1)$.
+
+### Abordagem 2: Exponenciação de Matrizes ($\mathcal{O}(\log n)$)
+- **Arquivo:** `pell_matrizes.py`
+- **Funcionamento:** Utiliza a representação matricial da recorrência de Pell:
+$$\begin{pmatrix} P_{n+1} & P_n \\ P_n & P_{n-1} \end{pmatrix} = \begin{pmatrix} 2 & 1 \\ 1 & 0 \end{pmatrix}^n$$
+  Calculada em tempo logarítmico via potenciação binária.
+- **Complexidade de Tempo:** $\mathcal{O}(\log n)$ multiplicações.
+- **Complexidade de Espaço:** $\mathcal{O}(1)$.
+
+---
+
+## 4. Resultados Experimentais (Pell)
+
+| $n$ | $P(n)$ | Abordagem 1: Iterativo $\mathcal{O}(n)$ | Abordagem 2: Matrizes $\mathcal{O}(\log n)$ |
+| :---: | :---: | :---: | :---: |
+| **5** | **29** | **0.0020 ms** | **0.0067 ms** |
+| **15** | **195.025** | **0.0017 ms** | **0.0047 ms** |
+| **30** | **107.578.520.350** | **0.0020 ms** | **0.0049 ms** |
+
+---
+
+## 5. Análise dos Gráficos de Performance (Pell)
+
+Os gráficos gerados pelo script `pell_graficos.py` (arquivo `graficos_pell.png`) mostram:
+
+1. **Crescimento Exponencial da Definição Recursiva ($n=1$ a $26$):**
+   - Como a base da exponenciação dos números de Pell é a razão prateada $\delta_S \approx 2,414$ (maior que a razão áurea de Fibonacci $\phi \approx 1,618$), a explosão do tempo de execução ocorre ainda mais rápido (em $n \approx 24$, o tempo já atinge múltiplos segundos).
+
+2. **Iterativo $\mathcal{O}(n)$ vs. Matrizes $\mathcal{O}(\log n)$ para Grandes Valores ($n=1.000$ a $300.000$):**
+   - O método iterativo cresce linearmente em operações, alcançando mais de $2$ segundos para $n = 300.000$.
+   - O método matricial realiza apenas ~18 multiplicações de matrizes, finalizando o cálculo em menos de $0,15$ segundos.
+
+---
+
+## 6. Maior Número Calculável (Pell)
+
+- **Abordagem Iterativa:** **$n \approx 300.000$ a $500.000$** (gerando números com mais de $110.000$ dígitos decimais em ~2 segundos).
+- **Abordagem com Matrizes:** **$n \approx 5.000.000$ a $10.000.000$** (calcula $P(1.000.000)$ com mais de $382.000$ dígitos em ~0,69 segundos).
+
+---
+
+## 7. Referências Bibliográficas
+
+1. **HORADAM, A. F.** "Pell Identities." *The Fibonacci Quarterly*, v. 9, n. 3, p. 245-252, 1971.
+2. **CORMEN, Thomas H. et al.** *Introduction to Algorithms*. 3. ed. MIT Press, 2009. (Exponenciação de Matrizes em Recorrências Lineares).
+3. **LENSTRA, H. W.** "Solving the Pell Equation." *Notices of the AMS*, v. 49, n. 2, p. 182-192, 2002.
+4. **DASGUPTA, Sanjoy; PAPADIMITRIOU, Christos; VAZIRANI, Umesh.** *Algorithms*. McGraw-Hill, 2006.
+
+---
+
+## 8. Como Executar os Scripts
 
 ```bash
-# Execução da Versão 1
+# Fibonacci
 py 1_fibonacci_definicao.py
-
-# Execução da Versão 2
 py 2_fibonacci_intermediarios.py
-
-# Execução da Versão 3
 py 3_fibonacci_matrizes.py
-
-# Comparativo Geral
 py 4_comparativo_geral.py
-
-# Geração dos Gráficos
 py 5_gerar_graficos.py
+
+# Pell
+py pell_iterativo.py
+py pell_matrizes.py
+py pell_recursivo.py
+py pell_graficos.py
 ```
