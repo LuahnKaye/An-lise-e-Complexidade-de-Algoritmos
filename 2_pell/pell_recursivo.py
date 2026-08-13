@@ -15,7 +15,7 @@ def medir_tempo(n: int):
     return resultado, fim - inicio
 
 def main():
-    valores = [5, 15, 25]
+    valores = [5, 15, 30]
     
     print("=" * 60)
     print("NUMEROS DE PELL - DEFINICAO RECURSIVA")

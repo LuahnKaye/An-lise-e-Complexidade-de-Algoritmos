@@ -1,5 +1,8 @@
 import time
+import os
 import matplotlib.pyplot as plt
+
+_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def pell_definicao(n: int) -> int:
     if n <= 0:
@@ -87,7 +90,7 @@ def gerar_graficos():
     axes[1].legend(fontsize=11)
 
     plt.tight_layout()
-    plt.savefig('graficos_pell.png', dpi=300)
+    plt.savefig(os.path.join(_DIR, 'graficos_pell.png'), dpi=300)
     print("Grafico salvo com sucesso: graficos_pell.png")
     
     print("\nExibindo graficos na tela...")

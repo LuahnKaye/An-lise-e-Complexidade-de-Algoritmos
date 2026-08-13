@@ -1,5 +1,8 @@
 import time
+import os
 import matplotlib.pyplot as plt
+
+_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def catalan_recursivo(n: int) -> int:
     if n <= 0:
@@ -75,7 +78,7 @@ def gerar_graficos():
     axes[1].legend(fontsize=11)
 
     plt.tight_layout()
-    plt.savefig('3_catalan/graficos_catalan.png', dpi=300)
+    plt.savefig(os.path.join(_DIR, 'graficos_catalan.png'), dpi=300)
     print("Grafico salvo com sucesso: 3_catalan/graficos_catalan.png")
     
     print("\nExibindo graficos na tela...")
