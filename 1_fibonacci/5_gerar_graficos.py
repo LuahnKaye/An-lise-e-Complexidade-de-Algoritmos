@@ -2,20 +2,21 @@ import time
 import os
 import matplotlib.pyplot as plt
 
+# Garante que os graficos serao salvos na mesma pasta do script, nao importando de onde ele for executado
 _DIR = os.path.dirname(os.path.abspath(__file__))
 
+# As 3 funcoes de Fibonacci que estao sendo comparadas visualmente
+
 def fib_definicao(n: int) -> int:
-    if n <= 0:
-        return 0
-    if n == 1:
-        return 1
+    # O(2^n) - Recursivo ingênuo
+    if n <= 0: return 0
+    if n == 1: return 1
     return fib_definicao(n - 1) + fib_definicao(n - 2)
 
 def fib_intermediarios(n: int) -> int:
-    if n <= 0:
-        return 0
-    if n == 1:
-        return 1
+    # O(n) - Iterativo
+    if n <= 0: return 0
+    if n == 1: return 1
     a, b = 0, 1
     for _ in range(2, n + 1):
         a, b = b, a + b
@@ -28,10 +29,9 @@ def _mult_matrizes(A, B):
     ]
 
 def fib_matrizes(n: int) -> int:
-    if n <= 0:
-        return 0
-    if n == 1:
-        return 1
+    # O(log n) - Matrizes
+    if n <= 0: return 0
+    if n == 1: return 1
     res = [[1, 0], [0, 1]]
     base = [[1, 1], [1, 0]]
     exp = n
@@ -42,50 +42,54 @@ def fib_matrizes(n: int) -> int:
         exp //= 2
     return res[0][1]
 
-def medir(func, n, repeticoes=1):
+def medir(func, n):
     inicio = time.perf_counter()
-    for _ in range(repeticoes):
-        func(n)
+    func(n)
     fim = time.perf_counter()
-    return (fim - inicio) / repeticoes
+    return (fim - inicio) * 1000  # Retorna em milissegundos para os graficos
 
-def gerar_graficos():
-    print("Coletando tempos para valores pequenos/medios (n = 1 a 34)...")
-    valores_n1 = list(range(1, 35))
-    tempos_def = []
-    tempos_inter1 = []
-    tempos_mat1 = []
+def main():
+    print("Gerando dados para os graficos (isso pode levar alguns segundos)...")
+    
+    # ---------------------------------------------------------
+    # EXPERIMENTO 1: Valores pequenos (n=1 até 34)
+    # Mostra a explosao exponencial da recursao O(2^n)
+    # ---------------------------------------------------------
+    ns_pequenos = list(range(1, 35))
+    tempos_def = [medir(fib_definicao, n) for n in ns_pequenos]
+    tempos_int_pequenos = [medir(fib_intermediarios, n) for n in ns_pequenos]
+    tempos_mat_pequenos = [medir(fib_matrizes, n) for n in ns_pequenos]
 
-    for n in valores_n1:
-        tempos_def.append(medir(fib_definicao, n) * 1000)
-        tempos_inter1.append(medir(fib_intermediarios, n, repeticoes=100) * 1000)
-        tempos_mat1.append(medir(fib_matrizes, n, repeticoes=100) * 1000)
+    # ---------------------------------------------------------
+    # EXPERIMENTO 2: Valores grandes (n=10k até 400k)
+    # Compara a Linear O(n) vs Logaritmica O(log n) - O(2^n) ficaria travado aqui
+    # ---------------------------------------------------------
+    ns_grandes = [10000, 50000, 100000, 200000, 300000, 400000]
+    tempos_int_grandes = [medir(fib_intermediarios, n) for n in ns_grandes]
+    tempos_mat_grandes = [medir(fib_matrizes, n) for n in ns_grandes]
 
-    print("Coletando tempos para valores grandes (n = 10.000 a 400.000)...")
-    valores_n2 = [1000, 10000, 25000, 50000, 100000, 200000, 300000, 400000]
-    tempos_inter2 = []
-    tempos_mat2 = []
-
-    for n in valores_n2:
-        tempos_inter2.append(medir(fib_intermediarios, n))
-        tempos_mat2.append(medir(fib_matrizes, n))
-
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-
-    axes[0].plot(valores_n1, tempos_def, label='Definicao O(2^n)', color='#e74c3c', linewidth=2.5, marker='o', markersize=4)
-    axes[0].plot(valores_n1, tempos_inter1, label='Intermediarios O(n)', color='#3498db', linewidth=2.5)
-    axes[0].plot(valores_n1, tempos_mat1, label='Matrizes O(log n)', color='#2ecc71', linewidth=2.5)
-    axes[0].set_title('Comparativo Geral: n = 1 ate 34 (Escala Linear)', fontsize=13, fontweight='bold')
-    axes[0].set_xlabel('Valor de n', fontsize=11)
-    axes[0].set_ylabel('Tempo de Execucao (ms)', fontsize=11)
+    # --- GERACAO DOS GRAFICOS (Matplotlib) ---
+    plt.style.use('default')
+    
+    # Gráfico 1: Escala Linear (Dois paineis, um pra peq e outro pra gdes valores)
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6), dpi=100)
+    
+    # Painel Esquerdo: Explosao exponencial da versao O(2^n)
+    axes[0].plot(ns_pequenos, tempos_def, 'o-', color='#e74c3c', linewidth=2.5, markersize=4, label='Definição O(2^n)')
+    axes[0].plot(ns_pequenos, tempos_int_pequenos, '-', color='#3498db', linewidth=2.5, label='Intermediarios O(n)')
+    axes[0].plot(ns_pequenos, tempos_mat_pequenos, '-', color='#2ecc71', linewidth=2.5, label='Matrizes O(log n)')
+    axes[0].set_title('Fibonacci: n = 1 até 34 (Escala Linear)', fontsize=14, fontweight='bold')
+    axes[0].set_xlabel('Valor de n', fontsize=12)
+    axes[0].set_ylabel('Tempo de Execução (ms)', fontsize=12)
     axes[0].grid(True, linestyle='--', alpha=0.6)
     axes[0].legend(fontsize=11)
 
-    axes[1].plot(valores_n2, tempos_inter2, label='Intermediarios O(n)', color='#3498db', linewidth=2.5, marker='s', markersize=5)
-    axes[1].plot(valores_n2, tempos_mat2, label='Matrizes O(log n)', color='#2ecc71', linewidth=2.5, marker='^', markersize=6)
-    axes[1].set_title('Desempenho com Grandes Numeros: Intermediarios vs Matrizes', fontsize=13, fontweight='bold')
-    axes[1].set_xlabel('Valor de n', fontsize=11)
-    axes[1].set_ylabel('Tempo de Execucao (segundos)', fontsize=11)
+    # Painel Direito: Batalha de Titãs (Linear vs Log) para Grandes Valores
+    axes[1].plot(ns_grandes, [t/1000 for t in tempos_int_grandes], 's-', color='#3498db', linewidth=2.5, label='Intermediarios O(n)')
+    axes[1].plot(ns_grandes, [t/1000 for t in tempos_mat_grandes], '^-', color='#2ecc71', linewidth=2.5, label='Matrizes O(log n)')
+    axes[1].set_title('Grandes Valores: Iterativo vs Matrizes', fontsize=14, fontweight='bold')
+    axes[1].set_xlabel('Valor de n', fontsize=12)
+    axes[1].set_ylabel('Tempo de Execução (segundos)', fontsize=12)
     axes[1].grid(True, linestyle='--', alpha=0.6)
     axes[1].legend(fontsize=11)
 
@@ -93,23 +97,26 @@ def gerar_graficos():
     plt.savefig(os.path.join(_DIR, 'graficos_fibonacci.png'), dpi=300)
     print("Grafico salvo com sucesso: graficos_fibonacci.png")
 
+    # Gráfico 2: Escala Logaritmica
+    # Excelente para mostrar a complexidade de algoritmos de categorias muito distantes
     fig2, ax2 = plt.subplots(figsize=(9, 6))
-    ax2.plot(valores_n1, tempos_def, label='Definicao O(2^n)', color='#e74c3c', linewidth=2.5, marker='o')
-    ax2.plot(valores_n1, tempos_inter1, label='Intermediarios O(n)', color='#3498db', linewidth=2.5, marker='s')
-    ax2.plot(valores_n1, tempos_mat1, label='Matrizes O(log n)', color='#2ecc71', linewidth=2.5, marker='^')
-    ax2.set_yscale('log')
-    ax2.set_title('Comparativo em Escala Logaritmica (n = 1 ate 34)', fontsize=13, fontweight='bold')
-    ax2.set_xlabel('Valor de n', fontsize=11)
-    ax2.set_ylabel('Tempo de Execucao (ms) - Escala Log', fontsize=11)
-    ax2.grid(True, which='both', linestyle='--', alpha=0.6)
+    ax2.plot(ns_pequenos, tempos_def, 'o-', color='#e74c3c', linewidth=2, markersize=4, label='Definição O(2^n)')
+    ax2.plot(ns_pequenos, tempos_int_pequenos, 's-', color='#3498db', linewidth=2, markersize=4, label='Intermediarios O(n)')
+    ax2.plot(ns_pequenos, tempos_mat_pequenos, '^-', color='#2ecc71', linewidth=2, markersize=4, label='Matrizes O(log n)')
+    
+    ax2.set_yscale('log') # Transforma o eixo Y em logaritmico!
+    ax2.set_title('Fibonacci: Comparativo em Escala Logarítmica', fontsize=14, fontweight='bold')
+    ax2.set_xlabel('Valor de n', fontsize=12)
+    ax2.set_ylabel('Tempo de Execução (ms) - Escala Log', fontsize=12)
+    ax2.grid(True, which="both", ls="--", alpha=0.5)
     ax2.legend(fontsize=11)
     
     plt.tight_layout()
     plt.savefig(os.path.join(_DIR, 'grafico_escala_log.png'), dpi=300)
     print("Grafico em escala logaritmica salvo com sucesso: grafico_escala_log.png")
     
-    print("\nExibindo graficos na tela...")
+    print("\nExibindo graficos na tela (feche as janelas para finalizar)...")
     plt.show()
 
 if __name__ == "__main__":
-    gerar_graficos()
+    main()

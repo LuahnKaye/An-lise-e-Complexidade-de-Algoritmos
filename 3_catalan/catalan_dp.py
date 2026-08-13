@@ -1,16 +1,25 @@
 import time
 import sys
 
-sys.set_int_max_str_digits(1_000_000)
+# Permite calcular fatoriais grandes sem estourar o limite de string do interpretador
+sys.set_int_max_str_digits(5_000_000)
 
+# Abordagem 1: Usando Programacao Dinamica
+# Complexidade: Tempo O(n^2) e Espaco O(n)
+# Por que O(n^2)? Porque usamos 2 loops: um para varrer i de 1 a n, 
+# e um loop interno para varrer j de 0 a i-1 realizando a convolucao.
 def catalan_dp(n: int) -> int:
     if n <= 0:
         return 1
     
+    # Criamos um array dp de tamanho n+1 para guardar as respostas calculadas
     dp = [0] * (n + 1)
-    dp[0] = 1
+    dp[0] = 1 # O primeiro Catalan e 1
+    dp[1] = 1 # O segundo tambem
     
-    for i in range(1, n + 1):
+    # Preenchimento Bottom-up (de baixo para cima)
+    for i in range(2, n + 1):
+        # A formula eh dp[i] = somatorio(dp[j] * dp[i-1-j])
         for j in range(i):
             dp[i] += dp[j] * dp[i - 1 - j]
             
@@ -34,12 +43,14 @@ def main():
     for n in valores:
         res, t = medir_tempo(n)
         print(f"{n:<6} | {res:<22} | {t:<16.8f} | {t * 1000:.4f} ms")
-        
+    
     print("=" * 60)
-    print("\nTestes com valores maiores:")
+    print("\nTestes com valores maiores (mostrando a queda do O(n^2)):")
+    # Em n=3000 o algoritmo O(n^2) ja sofre bastante (demorando muitos segundos)
     for n in [100, 500, 1000, 3000]:
         res, t = medir_tempo(n)
-        digitos = len(str(res))
+        bits = res.bit_length()
+        digitos = int(bits * 0.30103) + 1
         print(f"C({n}) calculado em {t:.4f} s ({digitos} digitos)")
 
 if __name__ == "__main__":
